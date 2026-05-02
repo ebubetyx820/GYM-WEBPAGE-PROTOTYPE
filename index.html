@@ -1,0 +1,763 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>IronCore Gym | Member Dashboard</title>
+  <!-- Google Fonts & Font Awesome -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #0a0c10;
+      color: #edf2fb;
+      overflow-x: hidden;
+    }
+
+    /* animated background with iron texture */
+    body::before {
+      content: "";
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: radial-gradient(circle at 80% 10%, rgba(220, 40, 40, 0.12), rgba(0, 0, 0, 0.85)),
+                  repeating-linear-gradient(45deg, rgba(255,255,255,0.01) 0px, rgba(255,255,255,0.01) 2px, transparent 2px, transparent 10px);
+      z-index: -2;
+    }
+
+    /* glassmorphic navigation */
+    .dashboard-nav {
+      background: rgba(12, 16, 22, 0.75);
+      backdrop-filter: blur(14px);
+      border-bottom: 1px solid rgba(255, 80, 80, 0.2);
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+      position: sticky;
+      top: 0;
+      z-index: 20;
+    }
+
+    .logo h2 {
+      font-size: 1.7rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, #ffffff, #ff5e5e);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      letter-spacing: -0.5px;
+    }
+
+    .logo span {
+      font-weight: 400;
+      color: #bdc1d0;
+      font-size: 0.75rem;
+    }
+
+    .user-greeting {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      background: rgba(255, 255, 255, 0.05);
+      padding: 0.5rem 1.2rem;
+      border-radius: 3rem;
+    }
+
+    .user-greeting i {
+      color: #ff7a4a;
+      font-size: 1.2rem;
+    }
+
+    .logout-btn {
+      background: rgba(255, 80, 80, 0.15);
+      border: none;
+      padding: 0.5rem 1.2rem;
+      border-radius: 2rem;
+      color: #ffaaaa;
+      font-weight: 600;
+      font-size: 0.8rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .logout-btn:hover {
+      background: #ff4d4d;
+      color: white;
+    }
+
+    /* main dashboard container */
+    .dashboard-container {
+      max-width: 1400px;
+      margin: 2rem auto;
+      padding: 0 1.5rem 3rem;
+    }
+
+    /* stats cards */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 2.5rem;
+    }
+
+    .stat-card {
+      background: rgba(22, 26, 34, 0.75);
+      backdrop-filter: blur(8px);
+      border-radius: 1.5rem;
+      padding: 1.3rem 1.5rem;
+      border: 1px solid rgba(255, 90, 90, 0.2);
+      transition: 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .stat-left h4 {
+      font-size: 0.85rem;
+      font-weight: 500;
+      color: #9ca3b5;
+      letter-spacing: 0.5px;
+    }
+
+    .stat-left .value {
+      font-size: 2rem;
+      font-weight: 800;
+      margin-top: 0.3rem;
+      color: #fff;
+    }
+
+    .stat-icon {
+      font-size: 2.2rem;
+      color: #ff5e5e;
+      opacity: 0.8;
+    }
+
+    /* section titles */
+    .section-title {
+      font-size: 1.6rem;
+      font-weight: 700;
+      margin: 2rem 0 1.2rem 0;
+      border-left: 5px solid #ff5e5e;
+      padding-left: 1rem;
+    }
+
+    /* plans grid */
+    .plans-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.8rem;
+      margin-bottom: 2rem;
+    }
+
+    .plan-card {
+      background: rgba(18, 22, 30, 0.85);
+      backdrop-filter: blur(6px);
+      border-radius: 1.8rem;
+      padding: 1.5rem;
+      border: 1px solid rgba(255, 90, 90, 0.25);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .plan-card:hover {
+      transform: translateY(-6px);
+      border-color: #ff5e5e;
+      box-shadow: 0 15px 30px rgba(0,0,0,0.4);
+    }
+
+    .plan-name {
+      font-size: 1.5rem;
+      font-weight: 800;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .badge {
+      background: #ff5e5e20;
+      padding: 0.25rem 0.8rem;
+      border-radius: 2rem;
+      font-size: 0.7rem;
+      font-weight: 600;
+      color: #ff8a6f;
+    }
+
+    .price {
+      font-size: 1.8rem;
+      font-weight: 800;
+      margin: 0.8rem 0;
+      color: #ffbc7a;
+    }
+
+    .features {
+      list-style: none;
+      margin: 1rem 0;
+    }
+
+    .features li {
+      margin: 0.6rem 0;
+      font-size: 0.85rem;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+
+    .features i {
+      color: #ff8a5c;
+      width: 1.2rem;
+    }
+
+    .plan-btn {
+      width: 100%;
+      background: rgba(255, 90, 90, 0.2);
+      border: 1px solid #ff5e5e;
+      border-radius: 2rem;
+      padding: 0.7rem;
+      font-weight: 700;
+      color: #ffbc9a;
+      cursor: pointer;
+      transition: 0.2s;
+      margin-top: 0.5rem;
+    }
+
+    .plan-btn:hover {
+      background: #ff5e5e;
+      color: white;
+    }
+
+    /* goals & routines flex */
+    .goals-routines-wrapper {
+      display: grid;
+      grid-template-columns: 1fr 1.2fr;
+      gap: 2rem;
+      margin: 1rem 0 2rem;
+    }
+
+    @media (max-width: 800px) {
+      .goals-routines-wrapper {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+      }
+    }
+
+    .glass-card {
+      background: rgba(18, 22, 30, 0.75);
+      backdrop-filter: blur(10px);
+      border-radius: 1.8rem;
+      padding: 1.5rem;
+      border: 1px solid rgba(255, 90, 90, 0.2);
+    }
+
+    .glass-card h3 {
+      font-size: 1.4rem;
+      margin-bottom: 1.2rem;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+
+    .goal-item {
+      background: rgba(0, 0, 0, 0.3);
+      margin: 1rem 0;
+      padding: 1rem;
+      border-radius: 1.2rem;
+    }
+
+    .goal-header {
+      display: flex;
+      justify-content: space-between;
+      font-weight: 600;
+    }
+
+    .progress-bar-bg {
+      background: #2c2f3a;
+      border-radius: 1rem;
+      height: 8px;
+      margin: 0.8rem 0;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      background: linear-gradient(90deg, #ff5e5e, #ffb347);
+      width: 0%;
+      height: 100%;
+      border-radius: 1rem;
+    }
+
+    .add-btn {
+      background: rgba(255, 94, 94, 0.2);
+      border: 1px dashed #ff7a4a;
+      padding: 0.6rem;
+      border-radius: 2rem;
+      width: 100%;
+      margin-top: 1rem;
+      color: #ffb68a;
+      cursor: pointer;
+      font-weight: 600;
+      transition: 0.2s;
+    }
+
+    .routine-card {
+      background: rgba(0, 0, 0, 0.3);
+      border-radius: 1.2rem;
+      padding: 1rem;
+      margin-bottom: 0.8rem;
+    }
+
+    .routine-title {
+      font-weight: 700;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .routine-exercises {
+      font-size: 0.8rem;
+      color: #b9c0d4;
+      margin-top: 0.4rem;
+    }
+
+    .icon-btn {
+      background: none;
+      border: none;
+      color: #ff8a5e;
+      cursor: pointer;
+      font-size: 0.9rem;
+    }
+
+    /* modal styling */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.7);
+      backdrop-filter: blur(8px);
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+    .modal-content {
+      background: #151c24;
+      border-radius: 2rem;
+      padding: 2rem;
+      max-width: 450px;
+      width: 90%;
+      border: 1px solid #ff8a5e;
+    }
+    .modal-content input, .modal-content select {
+      width: 100%;
+      padding: 0.8rem;
+      margin: 0.8rem 0;
+      background: #0f1219;
+      border: 1px solid #3a3f4b;
+      border-radius: 1.2rem;
+      color: white;
+    }
+    .modal-buttons {
+      display: flex;
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+    .close-modal {
+      background: #ff5e5e;
+      border: none;
+      padding: 0.6rem;
+      border-radius: 2rem;
+    }
+    canvas#progressChart {
+      max-height: 200px;
+      margin-top: 1rem;
+    }
+    @media (max-width: 600px) {
+      .dashboard-nav { padding: 1rem; }
+    }
+  </style>
+</head>
+<body>
+<nav class="dashboard-nav">
+  <div class="logo">
+    <h2>IRON<span>CORE</span></h2>
+    <span>elite performance hub</span>
+  </div>
+  <div style="display: flex; gap: 1rem; align-items: center;">
+    <div class="user-greeting">
+      <i class="fas fa-user-astronaut"></i>
+      <span id="greetingName">Member</span>
+    </div>
+    <button class="logout-btn" id="logoutDashboardBtn"><i class="fas fa-sign-out-alt"></i> Exit</button>
+  </div>
+</nav>
+
+<div class="dashboard-container">
+  <!-- stats cards -->
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-left">
+        <h4>Current Plan</h4>
+        <div class="value" id="currentPlanName">Elite Core</div>
+      </div>
+      <i class="fas fa-dumbbell stat-icon"></i>
+    </div>
+    <div class="stat-card">
+      <div class="stat-left">
+        <h4>Active Goals</h4>
+        <div class="value" id="activeGoalsCount">0</div>
+      </div>
+      <i class="fas fa-bullseye stat-icon"></i>
+    </div>
+    <div class="stat-card">
+      <div class="stat-left">
+        <h4>Routines</h4>
+        <div class="value" id="routinesCount">0</div>
+      </div>
+      <i class="fas fa-calendar-alt stat-icon"></i>
+    </div>
+    <div class="stat-card">
+      <div class="stat-left">
+        <h4>Weekly Streak</h4>
+        <div class="value">12 <span style="font-size:0.9rem;">days</span></div>
+      </div>
+      <i class="fas fa-fire stat-icon"></i>
+    </div>
+  </div>
+
+  <!-- Membership plans section -->
+  <div class="section-title"><i class="fas fa-crown"></i> Available Membership Plans</div>
+  <div class="plans-grid" id="plansContainer"></div>
+
+  <!-- Goals + workout routines section -->
+  <div class="goals-routines-wrapper">
+    <div class="glass-card">
+      <h3><i class="fas fa-chart-line"></i> Fitness Goals</h3>
+      <div id="goalsList"></div>
+      <button class="add-btn" id="addGoalBtn"><i class="fas fa-plus"></i> Add New Goal</button>
+      <canvas id="progressChart" width="400" height="180" style="margin-top: 1.5rem;"></canvas>
+    </div>
+    <div class="glass-card">
+      <h3><i class="fas fa-heartbeat"></i> Workout Routines</h3>
+      <div id="routinesList"></div>
+      <button class="add-btn" id="addRoutineBtn"><i class="fas fa-plus"></i> Create Routine</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal for Goal -->
+<div id="goalModal" class="modal">
+  <div class="modal-content">
+    <h3>Set New Goal</h3>
+    <input type="text" id="goalNameInput" placeholder="e.g., Squat 120kg" autocomplete="off">
+    <input type="number" id="goalTargetInput" placeholder="Target value (kg / reps)" step="1">
+    <select id="goalUnitSelect">
+      <option value="kg">kg</option>
+      <option value="lbs">lbs</option>
+      <option value="reps">reps</option>
+    </select>
+    <div class="modal-buttons">
+      <button id="saveGoalBtn" class="plan-btn" style="background:#ff5e5e; color:white;">Save Goal</button>
+      <button id="closeGoalModal" class="plan-btn" style="background:#333;">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal for Routine -->
+<div id="routineModal" class="modal">
+  <div class="modal-content">
+    <h3>Create Workout Routine</h3>
+    <input type="text" id="routineNameInput" placeholder="Routine name (e.g., Push Day)">
+    <input type="text" id="routineExercisesInput" placeholder="Exercises (comma separated: Bench press, Shoulder press)">
+    <div class="modal-buttons">
+      <button id="saveRoutineBtn" class="plan-btn" style="background:#ff5e5e; color:white;">Add Routine</button>
+      <button id="closeRoutineModal" class="plan-btn" style="background:#333;">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  (function() {
+    // ---------- DATA MODELS ----------
+    let activePlan = {
+      id: "elite",
+      name: "Elite Core",
+      price: "$49/mo",
+      features: ["Unlimited classes", "Personal coach", "Access to all zones"]
+    };
+
+    const availablePlans = [
+      { id: "basic", name: "Iron Starter", price: "$29/mo", features: ["Gym access 6am-10pm", "Basic equipment", "Locker room"], badge: "Popular" },
+      { id: "pro", name: "Pro Athlete", price: "$39/mo", features: ["24/7 access", "Group classes", "Sauna & recovery"], badge: "Trending" },
+      { id: "elite", name: "Elite Core", price: "$49/mo", features: ["Unlimited classes", "Personal coach", "Access to all zones", "Nutrition guide"], badge: "Best value" }
+    ];
+
+    let goals = [];     // { id, name, targetValue, currentValue, unit }
+    let routines = [];  // { id, name, exercises[] }
+
+    // demo initial data
+    goals.push({ id: "g1", name: "Deadlift PR", targetValue: 180, currentValue: 140, unit: "kg" });
+    goals.push({ id: "g2", name: "Pull-ups", targetValue: 15, currentValue: 8, unit: "reps" });
+    routines.push({ id: "r1", name: "Strength Focus", exercises: ["Squat 5x5", "Bench Press 4x8", "Pull-ups 3x failure"] });
+    routines.push({ id: "r2", name: "Cardio Burn", exercises: ["Treadmill 20min", "Rowing 1000m", "Burpees 3x12"] });
+
+    // helper functions to update UI
+    function updateStats() {
+      document.getElementById('activeGoalsCount').innerText = goals.length;
+      document.getElementById('routinesCount').innerText = routines.length;
+      document.getElementById('currentPlanName').innerText = activePlan.name;
+    }
+
+    function renderPlans() {
+      const container = document.getElementById('plansContainer');
+      container.innerHTML = '';
+      availablePlans.forEach(plan => {
+        const card = document.createElement('div');
+        card.className = 'plan-card';
+        card.innerHTML = `
+          <div class="plan-name">
+            ${plan.name}
+            ${plan.badge ? `<span class="badge">${plan.badge}</span>` : ''}
+          </div>
+          <div class="price">${plan.price}</div>
+          <ul class="features">
+            ${plan.features.map(f => `<li><i class="fas fa-check-circle"></i> ${f}</li>`).join('')}
+          </ul>
+          <button class="plan-btn" data-plan-id="${plan.id}">${activePlan.id === plan.id ? 'CURRENT PLAN' : 'SWITCH PLAN'}</button>
+        `;
+        container.appendChild(card);
+      });
+      document.querySelectorAll('[data-plan-id]').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          const planId = btn.getAttribute('data-plan-id');
+          const selected = availablePlans.find(p => p.id === planId);
+          if (selected && activePlan.id !== planId) {
+            activePlan = { ...selected, id: planId, name: selected.name, price: selected.price, features: selected.features };
+            updateStats();
+            renderPlans();
+            showToast(`✅ Plan upgraded to ${activePlan.name}!`, false);
+          } else if (activePlan.id === planId) {
+            showToast(`You're already on ${activePlan.name} plan.`, false);
+          }
+        });
+      });
+    }
+
+    function renderGoals() {
+      const container = document.getElementById('goalsList');
+      if (!container) return;
+      container.innerHTML = '';
+      if (goals.length === 0) {
+        container.innerHTML = '<div style="padding: 1rem; text-align:center; opacity:0.6;">No goals yet — add your first fitness target</div>';
+      } else {
+        goals.forEach(goal => {
+          const percent = Math.min(100, Math.floor((goal.currentValue / goal.targetValue) * 100));
+          const goalDiv = document.createElement('div');
+          goalDiv.className = 'goal-item';
+          goalDiv.innerHTML = `
+            <div class="goal-header">
+              <span><i class="fas fa-weight-hanging"></i> ${goal.name}</span>
+              <span>${goal.currentValue}/${goal.targetValue} ${goal.unit}</span>
+            </div>
+            <div class="progress-bar-bg"><div class="progress-fill" style="width: ${percent}%;"></div></div>
+            <div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 5px;">
+              <button class="icon-btn" data-update="${goal.id}" title="Update progress"><i class="fas fa-plus-circle"></i> +Progress</button>
+              <button class="icon-btn" data-delete="${goal.id}" style="color:#ff7b7b;"><i class="fas fa-trash-alt"></i> Remove</button>
+            </div>
+          `;
+          container.appendChild(goalDiv);
+        });
+        // attach events
+        document.querySelectorAll('[data-update]').forEach(btn => {
+          btn.addEventListener('click', (e) => {
+            const id = btn.getAttribute('data-update');
+            const goal = goals.find(g => g.id === id);
+            if (goal) {
+              let increment = 0;
+              if (goal.unit === 'kg' || goal.unit === 'lbs') increment = 10;
+              else increment = 2;
+              let newValue = goal.currentValue + increment;
+              if (newValue > goal.targetValue) newValue = goal.targetValue;
+              goal.currentValue = newValue;
+              renderGoals();
+              updateChart();
+              updateStats();
+              showToast(`📈 ${goal.name} updated: ${goal.currentValue}/${goal.targetValue} ${goal.unit}`, false);
+            }
+          });
+        });
+        document.querySelectorAll('[data-delete]').forEach(btn => {
+          btn.addEventListener('click', (e) => {
+            const id = btn.getAttribute('data-delete');
+            goals = goals.filter(g => g.id !== id);
+            renderGoals();
+            updateChart();
+            updateStats();
+            showToast(`Goal removed`, false);
+          });
+        });
+      }
+      updateChart();
+    }
+
+    let progressChart = null;
+    function updateChart() {
+      const ctx = document.getElementById('progressChart').getContext('2d');
+      const labels = goals.map(g => g.name.substring(0, 12));
+      const percentages = goals.map(g => Math.min(100, (g.currentValue / g.targetValue) * 100));
+      if (progressChart) progressChart.destroy();
+      progressChart = new Chart(ctx, {
+        type: 'bar',
+        data: { labels: labels, datasets: [{ label: 'Progress %', data: percentages, backgroundColor: '#ff5e5e', borderRadius: 8 }] },
+        options: { responsive: true, maintainAspectRatio: true, scales: { y: { max: 100, beginAtZero: true, grid: { color: '#2f3545' } } }, plugins: { legend: { labels: { color: '#ccc' } } } }
+      });
+    }
+
+    function renderRoutines() {
+      const container = document.getElementById('routinesList');
+      container.innerHTML = '';
+      if (routines.length === 0) {
+        container.innerHTML = '<div style="padding: 1rem; text-align:center; opacity:0.6;">No routines yet — create your custom workout plan</div>';
+      } else {
+        routines.forEach(rt => {
+          const div = document.createElement('div');
+          div.className = 'routine-card';
+          div.innerHTML = `
+            <div class="routine-title">
+              <span><i class="fas fa-dumbbell"></i> ${rt.name}</span>
+              <button class="icon-btn" data-delroutine="${rt.id}" style="color:#ff8a8a;"><i class="fas fa-times-circle"></i></button>
+            </div>
+            <div class="routine-exercises">📋 ${rt.exercises.join(' · ')}</div>
+          `;
+          container.appendChild(div);
+        });
+        document.querySelectorAll('[data-delroutine]').forEach(btn => {
+          btn.addEventListener('click', (e) => {
+            const id = btn.getAttribute('data-delroutine');
+            routines = routines.filter(r => r.id !== id);
+            renderRoutines();
+            updateStats();
+            showToast(`Routine removed`, false);
+          });
+        });
+      }
+    }
+
+    // modals logic
+    const goalModal = document.getElementById('goalModal');
+    const routineModal = document.getElementById('routineModal');
+    function openGoalModal() { goalModal.style.display = 'flex'; }
+    function closeGoalModal() { goalModal.style.display = 'none'; }
+    function openRoutineModal() { routineModal.style.display = 'flex'; }
+    function closeRoutineModal() { routineModal.style.display = 'none'; }
+
+    document.getElementById('addGoalBtn').addEventListener('click', openGoalModal);
+    document.getElementById('addRoutineBtn').addEventListener('click', openRoutineModal);
+    document.getElementById('closeGoalModal').addEventListener('click', closeGoalModal);
+    document.getElementById('closeRoutineModal').addEventListener('click', closeRoutineModal);
+    window.addEventListener('click', (e) => { if(e.target === goalModal) closeGoalModal(); if(e.target === routineModal) closeRoutineModal(); });
+
+    document.getElementById('saveGoalBtn').addEventListener('click', () => {
+      const name = document.getElementById('goalNameInput').value.trim();
+      const target = parseFloat(document.getElementById('goalTargetInput').value);
+      const unit = document.getElementById('goalUnitSelect').value;
+      if (!name || isNaN(target) || target <= 0) {
+        showToast("Please enter valid goal name and target", true);
+        return;
+      }
+      const newGoal = { id: Date.now() + Math.random() + '', name: name, targetValue: target, currentValue: 0, unit: unit };
+      goals.push(newGoal);
+      renderGoals();
+      updateStats();
+      closeGoalModal();
+      document.getElementById('goalNameInput').value = '';
+      document.getElementById('goalTargetInput').value = '';
+      showToast(`✨ New goal: ${name}`, false);
+    });
+
+    document.getElementById('saveRoutineBtn').addEventListener('click', () => {
+      const name = document.getElementById('routineNameInput').value.trim();
+      const exercisesRaw = document.getElementById('routineExercisesInput').value.trim();
+      if (!name || !exercisesRaw) {
+        showToast("Please fill routine name and exercises", true);
+        return;
+      }
+      const exercises = exercisesRaw.split(',').map(e => e.trim()).filter(e => e.length);
+      if (exercises.length === 0) { showToast("Add at least one exercise", true); return; }
+      const newRoutine = { id: Date.now() + '', name: name, exercises: exercises };
+      routines.push(newRoutine);
+      renderRoutines();
+      updateStats();
+      closeRoutineModal();
+      document.getElementById('routineNameInput').value = '';
+      document.getElementById('routineExercisesInput').value = '';
+      showToast(`🏋️ Routine "${name}" added`, false);
+    });
+
+    function showToast(msg, isErr = false) {
+      const toast = document.createElement('div');
+      toast.textContent = msg;
+      toast.style.position = 'fixed';
+      toast.style.bottom = '25px';
+      toast.style.left = '50%';
+      toast.style.transform = 'translateX(-50%)';
+      toast.style.backgroundColor = isErr ? '#c72a2fe6' : '#1f6d3ae6';
+      toast.style.backdropFilter = 'blur(6px)';
+      toast.style.padding = '10px 24px';
+      toast.style.borderRadius = '60px';
+      toast.style.fontWeight = '600';
+      toast.style.zIndex = '9999';
+      toast.style.color = 'white';
+      toast.style.fontSize = '0.85rem';
+      toast.style.border = '1px solid rgba(255,255,255,0.2)';
+      document.body.appendChild(toast);
+      setTimeout(() => {
+        toast.style.opacity = '0';
+        setTimeout(() => toast.remove(), 400);
+      }, 2600);
+    }
+
+    // logout: redirect to login page (original file would be login page, we simulate)
+    document.getElementById('logoutDashboardBtn').addEventListener('click', () => {
+      localStorage.removeItem('ironcore_remembered_email');
+      showToast("Logging out...", false);
+      setTimeout(() => {
+        window.location.href = "login.html";  // In this context, redirect to login (the previous provided page). But we can just reload or send to index of login.
+        // fallback: alert and reload
+        alert("Returning to IronCore access portal. (login page)");
+        window.location.reload(); // fallback reload -> but we can simulate, for demo show main login.
+      }, 500);
+    });
+
+    // setup greeting based on localStorage email (demo)
+    function setGreeting() {
+      const stored = localStorage.getItem('ironcore_remembered_email');
+      if (stored && stored.includes('@')) {
+        const namePart = stored.split('@')[0];
+        document.getElementById('greetingName').innerText = namePart.charAt(0).toUpperCase() + namePart.slice(1);
+      } else {
+        document.getElementById('greetingName').innerText = 'Iron Athlete';
+      }
+    }
+
+    // initial render
+    renderPlans();
+    renderGoals();
+    renderRoutines();
+    updateStats();
+    setGreeting();
+    updateChart();
+  })();
+</script>
+</body>
+</html>

@@ -1,0 +1,731 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>IronCore Gym | Elite Access Portal</title>
+  <!-- Google Fonts & Font Awesome -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #0a0c10;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    /* animated background gradient + subtle iron texture */
+    body::before {
+      content: "";
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: radial-gradient(circle at 20% 30%, rgba(220, 40, 40, 0.08), rgba(0,0,0,0.6)),
+                  repeating-linear-gradient(45deg, rgba(255,255,255,0.01) 0px, rgba(255,255,255,0.01) 2px, transparent 2px, transparent 8px);
+      z-index: 0;
+    }
+
+    /* modern glassmorphic container */
+    .login-container {
+      width: 100%;
+      max-width: 500px;
+      margin: 2rem;
+      position: relative;
+      z-index: 2;
+    }
+
+    .login-card {
+      background: rgba(18, 22, 28, 0.85);
+      backdrop-filter: blur(14px);
+      border-radius: 2rem;
+      padding: 2rem 1.8rem 2.5rem;
+      box-shadow: 0 25px 45px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 90, 90, 0.15);
+      transition: transform 0.2s ease, box-shadow 0.3s ease;
+      border: 1px solid rgba(255, 80, 80, 0.2);
+    }
+
+    .login-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 30px 50px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 80, 80, 0.3);
+    }
+
+    /* back home button */
+    .back-home {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: #bdc1c9;
+      font-size: 0.85rem;
+      font-weight: 500;
+      text-decoration: none;
+      background: rgba(255,255,255,0.05);
+      padding: 0.5rem 1rem;
+      border-radius: 3rem;
+      transition: all 0.2s;
+      margin-bottom: 1.8rem;
+      backdrop-filter: blur(4px);
+    }
+
+    .back-home i {
+      font-size: 0.8rem;
+    }
+
+    .back-home:hover {
+      background: rgba(255, 80, 80, 0.2);
+      color: #ff5e5e;
+      transform: translateX(-3px);
+    }
+
+    /* logo & brand */
+    .login-logo {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+
+    .login-logo h1 {
+      font-size: 2.2rem;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      background: linear-gradient(135deg, #ffffff 30%, #ff5e5e 80%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+
+    .login-logo h1 span {
+      background: linear-gradient(135deg, #ff5e5e, #ffb347);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      font-weight: 800;
+    }
+
+    .login-logo p {
+      color: #9aa2b5;
+      font-size: 0.85rem;
+      margin-top: 0.6rem;
+      font-weight: 400;
+    }
+
+    /* form styling */
+    .login-form {
+      display: flex;
+      flex-direction: column;
+      gap: 1.3rem;
+    }
+
+    .input-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .input-group label {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #eef2ff;
+      letter-spacing: 0.3px;
+      margin-left: 0.25rem;
+    }
+
+    .input-icon {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .input-icon i:first-child {
+      position: absolute;
+      left: 1rem;
+      color: #ff5e5e;
+      font-size: 1rem;
+      z-index: 1;
+      opacity: 0.8;
+    }
+
+    .input-icon input {
+      width: 100%;
+      background: rgba(12, 15, 20, 0.7);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 1.2rem;
+      padding: 0.9rem 1rem 0.9rem 2.6rem;
+      font-size: 0.95rem;
+      color: #f0f3fa;
+      font-weight: 500;
+      transition: all 0.2s;
+      outline: none;
+      font-family: 'Inter', monospace;
+    }
+
+    .input-icon input:focus {
+      border-color: #ff5e5e;
+      box-shadow: 0 0 0 3px rgba(255, 94, 94, 0.2);
+      background: rgba(20, 24, 32, 0.9);
+    }
+
+    .input-icon input::placeholder {
+      color: #5c6370;
+      font-weight: 400;
+    }
+
+    /* toggle password button */
+    .toggle-password {
+      position: absolute;
+      right: 0.75rem;
+      background: transparent;
+      border: none;
+      color: #8e95a8;
+      cursor: pointer;
+      font-size: 1rem;
+      padding: 0.3rem;
+      display: flex;
+      align-items: center;
+      transition: color 0.2s;
+    }
+
+    .toggle-password:hover {
+      color: #ff5e5e;
+    }
+
+    .form-options {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 0.2rem;
+    }
+
+    .checkbox-label {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: #b0b8ce;
+      font-size: 0.8rem;
+      cursor: pointer;
+    }
+
+    .checkbox-label input {
+      accent-color: #ff5e5e;
+      width: 1rem;
+      height: 1rem;
+      cursor: pointer;
+    }
+
+    .forgot-link {
+      color: #ff8a6f;
+      font-size: 0.8rem;
+      text-decoration: none;
+      font-weight: 500;
+      transition: color 0.2s;
+    }
+
+    .forgot-link:hover {
+      color: #ff5e5e;
+      text-decoration: underline;
+    }
+
+    /* main login button */
+    .login-btn {
+      background: linear-gradient(95deg, #ff4d4d, #ff8a3c);
+      border: none;
+      border-radius: 2rem;
+      padding: 0.9rem 1rem;
+      font-size: 1rem;
+      font-weight: 700;
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.7rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      margin-top: 0.5rem;
+      box-shadow: 0 8px 18px rgba(255, 70, 70, 0.2);
+    }
+
+    .login-btn i {
+      transition: transform 0.2s;
+    }
+
+    .login-btn:hover {
+      background: linear-gradient(95deg, #ff3a3a, #ff7220);
+      transform: scale(1.01);
+      gap: 1rem;
+      box-shadow: 0 12px 22px rgba(255, 70, 70, 0.35);
+    }
+
+    .login-btn:hover i {
+      transform: translateX(4px);
+    }
+
+    /* divider */
+    .divider {
+      display: flex;
+      align-items: center;
+      text-align: center;
+      margin: 1.8rem 0 1.2rem;
+      color: #5f6a7e;
+      font-size: 0.75rem;
+    }
+
+    .divider::before,
+    .divider::after {
+      content: "";
+      flex: 1;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .divider span {
+      margin: 0 1rem;
+      font-weight: 500;
+    }
+
+    /* social buttons */
+    .social-login {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .social-btn {
+      flex: 1;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 2rem;
+      padding: 0.7rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.6rem;
+      font-weight: 500;
+      font-size: 0.85rem;
+      color: #dce3f5;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .social-btn i {
+      font-size: 1.1rem;
+    }
+
+    .google-btn:hover {
+      background: rgba(219, 68, 55, 0.2);
+      border-color: #db4437;
+      color: white;
+    }
+
+    .facebook-btn:hover {
+      background: rgba(66, 103, 178, 0.2);
+      border-color: #4267B2;
+      color: white;
+    }
+
+    /* signup prompt */
+    .signup-prompt {
+      text-align: center;
+      margin-top: 1rem;
+    }
+
+    .signup-prompt p {
+      color: #8e97ab;
+      font-size: 0.85rem;
+    }
+
+    .signup-prompt a {
+      color: #ff7a4a;
+      text-decoration: none;
+      font-weight: 600;
+      transition: color 0.2s;
+    }
+
+    .signup-prompt a:hover {
+      color: #ff5e5e;
+      text-decoration: underline;
+    }
+
+    /* demo hint refined */
+    .demo-hint {
+      margin-top: 1.8rem;
+      background: rgba(255, 94, 94, 0.08);
+      border-left: 3px solid #ff5e5e;
+      padding: 0.7rem 1rem;
+      border-radius: 1rem;
+      font-size: 0.75rem;
+      color: #bdc3d4;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+
+    .demo-hint i {
+      color: #ff8a5c;
+      font-size: 0.9rem;
+    }
+
+    .demo-hint strong {
+      color: #ffb347;
+      font-weight: 700;
+    }
+
+    /* shake animation for error */
+    @keyframes shake {
+      0% { transform: translateX(0); }
+      25% { transform: translateX(-5px); }
+      75% { transform: translateX(5px); }
+      100% { transform: translateX(0); }
+    }
+
+    .shake-error {
+      animation: shake 0.3s ease-in-out 0s 2;
+      border-color: #ff4d4d !important;
+    }
+
+    /* focus and status message */
+    .form-message {
+      font-size: 0.75rem;
+      margin-top: -0.5rem;
+      padding-left: 0.5rem;
+      color: #ff7b72;
+      min-height: 1.2rem;
+    }
+
+    button:disabled {
+      opacity: 0.7;
+      cursor: not-allowed;
+    }
+
+    /* responsive */
+    @media (max-width: 480px) {
+      .login-card {
+        padding: 1.5rem;
+      }
+      .social-login {
+        flex-direction: column;
+      }
+      .login-logo h1 {
+        font-size: 1.8rem;
+      }
+    }
+  </style>
+</head>
+<body>
+<div class="login-container">
+  <div class="login-card">
+    <a href="#" class="back-home" id="backHomeBtn">
+      <i class="fas fa-arrow-left"></i> Back to Home
+    </a>
+
+    <div class="login-logo">
+      <h1>IRON<span>CORE</span></h1>
+      <p>Unlock your strength · Member access</p>
+    </div>
+
+    <form id="loginForm" class="login-form" novalidate>
+      <div class="input-group">
+        <label for="email"><i class="far fa-envelope" style="margin-right: 5px;"></i> Email Address</label>
+        <div class="input-icon">
+          <i class="fas fa-envelope"></i>
+          <input type="email" id="email" name="email" placeholder="member@ironcore.com" autocomplete="email" value="">
+        </div>
+        <div id="emailError" class="form-message"></div>
+      </div>
+
+      <div class="input-group">
+        <label for="password"><i class="fas fa-key" style="margin-right: 5px;"></i> Password</label>
+        <div class="input-icon">
+          <i class="fas fa-lock"></i>
+          <input type="password" id="password" name="password" placeholder="••••••••" autocomplete="current-password">
+          <button type="button" id="togglePassword" class="toggle-password" aria-label="Show password">
+            <i class="fas fa-eye"></i>
+          </button>
+        </div>
+        <div id="passwordError" class="form-message"></div>
+      </div>
+
+      <div class="form-options">
+        <label class="checkbox-label">
+          <input type="checkbox" id="rememberMe"> Keep me logged in
+        </label>
+        <a href="#" class="forgot-link" id="forgotPasswordMock">Forgot password?</a>
+      </div>
+
+      <button type="submit" class="login-btn" id="loginBtn">
+        <span>Access Membership</span>
+        <i class="fas fa-dumbbell"></i>
+      </button>
+    </form>
+
+    <div class="divider">
+      <span>or continue with</span>
+    </div>
+
+    <div class="social-login">
+      <button class="social-btn google-btn" id="googleMock">
+        <i class="fab fa-google"></i> Google
+      </button>
+      <button class="social-btn facebook-btn" id="facebookMock">
+        <i class="fab fa-facebook-f"></i> Facebook
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+  (function() {
+    // DOM elements
+    const emailInput = document.getElementById('email');
+    const passwordInput = document.getElementById('password');
+    const loginBtn = document.getElementById('loginBtn');
+    const loginForm = document.getElementById('loginForm');
+    const togglePassBtn = document.getElementById('togglePassword');
+    const rememberCheckbox = document.getElementById('rememberMe');
+    const emailErrorDiv = document.getElementById('emailError');
+    const passwordErrorDiv = document.getElementById('passwordError');
+
+    // Demo credentials
+    const DEMO_EMAIL = 'ebubetyx@gmail.com';
+    const DEMO_PASSWORD = '123456';
+
+    // Helper: clear all field errors
+    function clearErrors() {
+      emailErrorDiv.textContent = '';
+      passwordErrorDiv.textContent = '';
+      emailInput.classList.remove('shake-error');
+      passwordInput.classList.remove('shake-error');
+    }
+
+    // Helper: show error on specific field
+    function showFieldError(field, message) {
+      if (field === 'email') {
+        emailErrorDiv.textContent = message;
+        emailInput.classList.add('shake-error');
+        setTimeout(() => emailInput.classList.remove('shake-error'), 500);
+      } else if (field === 'password') {
+        passwordErrorDiv.textContent = message;
+        passwordInput.classList.add('shake-error');
+        setTimeout(() => passwordInput.classList.remove('shake-error'), 500);
+      }
+    }
+
+    // Generic toast style notification (better UX)
+    function showNotification(message, isError = true) {
+      // create floating toast element
+      const toast = document.createElement('div');
+      toast.textContent = message;
+      toast.style.position = 'fixed';
+      toast.style.bottom = '20px';
+      toast.style.left = '50%';
+      toast.style.transform = 'translateX(-50%)';
+      toast.style.backgroundColor = isError ? '#c72a2f' : '#2b7a3e';
+      toast.style.color = 'white';
+      toast.style.padding = '12px 24px';
+      toast.style.borderRadius = '60px';
+      toast.style.fontWeight = '600';
+      toast.style.fontSize = '0.85rem';
+      toast.style.zIndex = '1000';
+      toast.style.backdropFilter = 'blur(8px)';
+      toast.style.background = isError ? 'rgba(199, 42, 47, 0.95)' : 'rgba(43, 122, 62, 0.95)';
+      toast.style.boxShadow = '0 8px 20px rgba(0,0,0,0.3)';
+      toast.style.fontFamily = "'Inter', sans-serif";
+      toast.style.border = '1px solid rgba(255,255,255,0.2)';
+      document.body.appendChild(toast);
+      setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transition = 'opacity 0.3s';
+        setTimeout(() => toast.remove(), 400);
+      }, 2800);
+    }
+
+    // Save "remember me" to localStorage (mock persist email)
+    function loadRememberedEmail() {
+      const saved = localStorage.getItem('ironcore_remembered_email');
+      if (saved) {
+        emailInput.value = saved;
+        rememberCheckbox.checked = true;
+      } else {
+        // set empty but demo hint prefill? we can prefill empty but keep hint
+        if (emailInput.value === '') emailInput.value = '';
+      }
+    }
+
+    function saveRememberMe() {
+      if (rememberCheckbox.checked && emailInput.value.trim()) {
+        localStorage.setItem('ironcore_remembered_email', emailInput.value.trim());
+      } else {
+        localStorage.removeItem('ironcore_remembered_email');
+      }
+    }
+
+    // actual validation & login
+    function validateAndLogin(event) {
+      if (event) event.preventDefault();
+      clearErrors();
+
+      const email = emailInput.value.trim();
+      const password = passwordInput.value;
+
+      let isValid = true;
+
+      // email validation (simple but effective)
+      if (!email) {
+        showFieldError('email', 'Email address is required');
+        isValid = false;
+      } else if (!/^[^\s@]+@([^\s@.,]+\.)+[^\s@.,]{2,}$/i.test(email)) {
+        showFieldError('email', 'Enter a valid email address (e.g., name@domain.com)');
+        isValid = false;
+      }
+
+      if (!password) {
+        showFieldError('password', 'Password cannot be empty');
+        isValid = false;
+      } else if (password.length < 6) {
+        showFieldError('password', 'Password must be at least 6 characters');
+        isValid = false;
+      }
+
+      if (!isValid) {
+        return false;
+      }
+
+      // Demo authentication (enhanced)
+      if (email === DEMO_EMAIL && password === DEMO_PASSWORD) {
+        saveRememberMe();
+        showNotification('✅ Access granted! Redirecting to member dashboard...', false);
+        // simulate redirect after short delay
+        setTimeout(() => {
+          // create a mock subscription dashboard simulation
+          alert('✨ Welcome to IronCore!\n(Redirect to subscription dashboard simulation)\nYou can now manage your premium plan.');
+          // optional: redirect to index, but we just show success for demo
+          // window.location.href = "dashboard.html"; (if exist) else mock
+          window.location.href = "index.html"; // fallback to homepage, as demo improvement
+        }, 900);
+        return true;
+      } else {
+        // wrong credentials
+        showNotification('Invalid email or password. Try member@ironcore.com / gympass123', true);
+        showFieldError('email', 'Credentials do not match our records');
+        showFieldError('password', '');
+        passwordInput.classList.add('shake-error');
+        setTimeout(() => passwordInput.classList.remove('shake-error'), 500);
+        return false;
+      }
+    }
+
+    // Toggle password visibility with icon change
+    function togglePasswordVisibility() {
+      const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+      passwordInput.setAttribute('type', type);
+      const icon = togglePassBtn.querySelector('i');
+      if (type === 'text') {
+        icon.classList.remove('fa-eye');
+        icon.classList.add('fa-eye-slash');
+      } else {
+        icon.classList.remove('fa-eye-slash');
+        icon.classList.add('fa-eye');
+      }
+    }
+
+    // Social login mocks (enhanced interactive)
+    function socialMock(provider) {
+      showNotification(`✨ ${provider} authentication demo: trial mode active. Try main demo login.`, false);
+      setTimeout(() => {
+        alert(`${provider} login simulation — use demo credentials for full access.`);
+      }, 100);
+    }
+
+    // forgot password mock interaction (polite)
+    function mockForgotPassword() {
+      showNotification('📧 Reset link sent to your email (demo mode). Use demo credentials.', false);
+      setTimeout(() => {
+        alert('For demo, use member@ironcore.com / gympass123');
+      }, 150);
+    }
+
+    function signupMock() {
+      showNotification('💪 Start your 7-day free trial — join IronCore now.', false);
+      setTimeout(() => {
+        alert('Trial signup demo: redirect to registration page (full subscription features).');
+      }, 200);
+    }
+
+    // back home link handler
+    function backToHome() {
+      window.location.href = "index.html";
+    }
+
+    // additionally enhance loading state to avoid double submission
+    let isSubmitting = false;
+    function handleFormSubmit(e) {
+      e.preventDefault();
+      if (isSubmitting) return;
+      isSubmitting = true;
+      const result = validateAndLogin(e);
+      if (!result) {
+        isSubmitting = false;
+      } else {
+        // redirect will happen inside, but we re-enable later if error-free? already redirected
+        setTimeout(() => { isSubmitting = false; }, 2000);
+      }
+    }
+
+    // smart prefill demo hint but not overriding user type
+    function optionalPrefillDemoEmail() {
+      const remembered = localStorage.getItem('ironcore_remembered_email');
+      if (!remembered && !emailInput.value) {
+        // do not force demo email auto, keep placeholder only.
+        // just make user experience cleaner - we show hint only.
+      }
+      loadRememberedEmail();
+    }
+
+    // event bindings
+    loginForm.addEventListener('submit', handleFormSubmit);
+    togglePassBtn.addEventListener('click', togglePasswordVisibility);
+    document.getElementById('googleMock').addEventListener('click', () => socialMock('Google'));
+    document.getElementById('facebookMock').addEventListener('click', () => socialMock('Facebook'));
+    const forgotLink = document.getElementById('forgotPasswordMock');
+    if (forgotLink) forgotLink.addEventListener('click', (e) => { e.preventDefault(); mockForgotPassword(); });
+    const signupLink = document.getElementById('signupLink');
+    if (signupLink) signupLink.addEventListener('click', (e) => { e.preventDefault(); signupMock(); });
+    const backBtn = document.getElementById('backHomeBtn');
+    if (backBtn) backBtn.addEventListener('click', (e) => { e.preventDefault(); backToHome(); });
+
+    // realtime live error clearing when user starts typing
+    emailInput.addEventListener('input', () => {
+      emailErrorDiv.textContent = '';
+      emailInput.classList.remove('shake-error');
+    });
+    passwordInput.addEventListener('input', () => {
+      passwordErrorDiv.textContent = '';
+      passwordInput.classList.remove('shake-error');
+    });
+    optionalPrefillDemoEmail();
+
+    // add small easter egg: focus effect
+    const inputs = [emailInput, passwordInput];
+    inputs.forEach(inp => {
+      inp.addEventListener('focus', () => {
+        inp.parentElement?.parentElement?.querySelector('label')?.setAttribute('style', 'color:#ff7b5c');
+      });
+      inp.addEventListener('blur', () => {
+        inp.parentElement?.parentElement?.querySelector('label')?.removeAttribute('style');
+      });
+    });
+  })();
+</script>
+</body>
+</html>
